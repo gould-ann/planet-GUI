@@ -1,4 +1,6 @@
 <?php
-	$output = shell_exec('/usr/bin/python send_data.py '.$_GET["char"]);
+
+	// echo $_GET["char"] . " sent";
+	$output = shell_exec('echo ' . $_GET["char"] . " > roomba_input.txt");
 	echo $output;
 ?> 

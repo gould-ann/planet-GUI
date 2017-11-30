@@ -21,13 +21,13 @@
 
 // the function called by the button press
 function get_output() {
-	get_request('php_get_handler.php', draw_output, draw_error, '');
+	get_request('php_get_handler.php', draw_output, draw_error);
 	return false;
 }
 
 // the function called by the button press
 function send_input(char) {
-	get_request('php_get_handler.php', draw_command_sent, draw_error, 'char='+char);
+	get_request('php_send_handler.php?char='+char, draw_command_sent, draw_error);
 	return false;
 }
 
@@ -35,7 +35,7 @@ function send_input(char) {
 // note that until it is succsessful, it assumes theres an error, so while its loading it assumes it just didnt work
 // but it will update if it succsessfully recieves a reply
 function draw_error() {
-	document.getElementById("changeme").innerHTML = "ERROR!";
+	document.getElementById("raw_output").innerHTML = "ERROR!";
 }
 
 // what do do if its succsessful
@@ -49,19 +49,19 @@ function draw_command_sent(response_text){
 }
 
 // get the request from the python CGI page
-function get_request(url, success, error, data_string) {
+function get_request(url, success, error) {
 	var req = new XMLHttpRequest();
 	req.onreadystatechange = function () {
 		return req.status == 200 ? success(req.responseText) : error(req.status);
 	}
 	req.open("POST", url, true);
 	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	req.send(data_string);
+	req.send();
 	return req;
 }
 
 
-
+// setInterval(get_output, 300);
 
 
 
