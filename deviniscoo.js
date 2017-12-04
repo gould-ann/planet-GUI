@@ -21,6 +21,7 @@
 
 // the function called by the button press
 function get_output() {
+	console.log("here");
 	get_request('php_get_handler.php', draw_output, draw_error);
 	return false;
 }
@@ -60,8 +61,7 @@ function get_request(url, success, error) {
 	return req;
 }
 
-
-// setInterval(get_output, 300);
+setInterval(get_output(), 1);
 
 
 

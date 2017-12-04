@@ -21,6 +21,7 @@ def connect_socket(host, port):
     try:
         ip = socket.gethostbyname(host)
         my_socket.connect((ip , port))
+        my_socket.settimeout(1)
         print "connected socket to port:", port, "of host", host, "at ip:", ip
     except socket.gaierror:
         #could not resolve
@@ -41,8 +42,11 @@ def send_data(message):
     print 'Message send successfully'
 
 def get_data():
-    reply = my_socket.recv(1)
-    return reply
+    try:
+        reply = my_socket.recv(1)
+        return reply
+    except socket.timeout:
+        return ""
 
 
 
