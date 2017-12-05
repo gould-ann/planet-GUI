@@ -78,8 +78,9 @@ void auto_reroute(oi_t *sensor, int centimeters){
                 turn(sensor,-90);
                 x = (sum/10);
                 sum = abs(milimeters);
-                sprintf(msg, "centimeters traveled before Front Left BUMP\n%d", x);
+                sprintf(msg, '2{"cm": %d}/n', x);
                 send_string(msg);
+                send_string('1{"types":["bump"]}/n');
                 lcd_printf(msg);
             }
 

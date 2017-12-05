@@ -5,13 +5,14 @@
 #include "WiFi.h"
 #include "uart.h"
 #include "movement.h"
+#include "music.h"
 #include "open_interface.h"
 
 void UART_init(void);
 //void UART_Transmit(char sdata);
 char UART_Receive(void);
 char uart_receive(void);
-int sweep(void);
+
 //30923764.5 0x1D7DBF4
 //prelab 2: 8 & 44
 
@@ -27,6 +28,7 @@ int main(void)
     oi_init(sensor);
     oi_shutoff_init();
     GPIOF_Handler();
+    load_songs();
     char buffer[21];
     int i = 0;
     int j = 0;
@@ -36,6 +38,8 @@ int main(void)
 
     char pass[] = "annIsCool123";
     char temp;
+
+    //oi_play_song(0);
     //WiFi_start(pass);
     while(1){
         temp = uart_receive();
@@ -59,6 +63,9 @@ int main(void)
             if(temp=='s'){
 
             }
+            if(temp == 'n'){
+                oi_play_song(0);
+            }
         }
 
         else {
@@ -78,78 +85,3 @@ int main(void)
     return 0;
 }
 
-int sweep(void){
-
-    int degrees = 0;
-    while(degrees < 170){
-         int avg = ir_stuff();
-         int ping_distance = ping_dist()/10;
-        lcd_printf("%d ir dist\n %d ping dist\n %d degrees\n %d largest objs\n", avg, ping_distance, degrees, num_value);
-
-        char to_char_array[7];
-//        send_string("            Degrees:");
-//        snprintf(to_char_array, 7, "%d", degrees);
-//        send_string(to_char_array);
-
-//        send_string("            Ir Distance (cm):");
-//        snprintf(to_char_array, 7, "%d", avg);
-//        send_string(to_char_array);
-
-//        send_string("            Sonar Distance (cm):");
-//        snprintf(to_char_array,7, "%d", ping_distance);
-//        send_string(to_char_array);
-        uart_sendChar('\n');
-        uart_sendChar('\r');
-
-      // values[num_value % 3] = ir_stuff();
-//      num_value++;
-
-//      if(num_value > 2){
-//
-//          //int avg = (values[0]+values[1]+values[2])/3;
-//
-            if( avg < 80){
-                real++;
-                if(on_object == 0 && real >= 3 ) {
-                    store_degrees = degrees;
-                    f_location[num_value] = degrees;
-                    on_object = 1;
-                }
-            }
-            else if(on_object == 1){
-                objects[num_value] = degrees - store_degrees;
-                b_location[num_value] = degrees;
-                num_value++;
-                on_object = 0;
-                real = 0;
-            }
-            else{
-                real = 0;
-            }
-        servo_t(degrees);
-        timer_waitMillis(10);
-        degrees += 1;
-        if(degrees >= 170){
-            break;
-        }
-    }
-    int i;
-    int max = objects[0];
-    int max_index = 0;
-    int min_index = 0;
-    int min = objects[0];
-    for(i=0; i < num_value; i++){
-        if(objects[i] > max){
-            max = objects[i];
-            max_index = i;
-        }
-
-        if(objects[i] < min){
-            min = objects[i];
-            min_index = i;
-        }
-    }
-    servo_t(b_location[min_index] - (objects[min_index]));
-    lcd_printf("%d", min_index);
-
-}
