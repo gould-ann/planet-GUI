@@ -7,6 +7,10 @@
 #include "movement.h"
 #include "music.h"
 #include "open_interface.h"
+#include "scan.h"
+#include "adc_init.h"
+#include "servo.h"
+#include "sonar.h"
 
 void UART_init(void);
 //void UART_Transmit(char sdata);
@@ -35,8 +39,11 @@ int main(void)
     lcd_init();
     UART_init();
     button_init();
+    init_ADC();
+    servo_init();
+    ping_init();
 
-    char pass[] = "annIsCool123";
+    char pass[] = "annIsCool";
     char temp;
 
     //oi_play_song(0);
@@ -50,18 +57,18 @@ int main(void)
                 auto_reroute(sensor, 25);
             }
             if(temp =='r'){
-              turn(sensor, -90);
+              turn(sensor, -22.5);
             }
             if(temp == 'l'){
-                lcd_printf("yay!");
-               turn(sensor, 90);
+                //lcd_printf("yay!");
+               turn(sensor, 22.5);
 
             }
             if(temp == 'd'){
                 move(sensor, -10, 100);
             }
             if(temp=='s'){
-
+                scan_action();
             }
             if(temp == 'n'){
                 oi_play_song(0);
