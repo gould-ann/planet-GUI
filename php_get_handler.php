@@ -1,6 +1,6 @@
 <?php
 	
 	// echo ":)";
-	$output = shell_exec('tail roomba_output.txt 10');
-	echo "<br>" . $output;
+	$output = shell_exec('tail -n 1 roomba_output.txt');
+	echo $output;
 ?> 

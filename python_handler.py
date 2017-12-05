@@ -13,7 +13,7 @@ while 1:
 	lines = "".join([line for line in f])
 	f.close()
 	if lines != "":
-		print lines
+		print lines[0]
 		sockets.send_data(lines[0])
 		j = open("roomba_input.txt", "w")
 		j.write("")
@@ -26,5 +26,9 @@ while 1:
 		print "char is: " + char
 		if char == "\n":
 			i.write("<br>")
+			time.sleep(2)
 		i.write(char)
+
+		if char == "":
+			i.write("")
 		i.close()
