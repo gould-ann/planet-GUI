@@ -9,10 +9,14 @@ function draw_all() {
 	return false;
 }
 
-
+var is_scanning = false;
 // the function called by the button press
 function send_input(char) {
 	get_request('php_send_handler.php?char='+char, draw_command_sent, do_nothing);
+	if(char == 's')
+		is_scanning = true;
+	else
+		is_scanning = false;
 	return false;
 }
 
@@ -35,8 +39,16 @@ function do_nothing(){
 // what do do if its succsessful
 function draw_output(response_text) {
 	if(response_text.length > 10){
-		// response_text = response_text.substring(30);
-		document.getElementById("raw_output").innerHTML = "<br>" + response_text;
+		var all_text = "";
+		var parsed_data = JSON.parse(response_text);
+
+		for (var i = 0; i < Math.min(10-parsed_data.length, 10); i++) {
+			all_text += "<br>";
+		}
+		for (var i = Math.max(0, parsed_data.length-10); i < parsed_data.length; i++) {
+			all_text += JSON.stringify(parsed_data[i]) + "<br>";
+		}
+		document.getElementById("raw_output").innerHTML = all_text;
 		display(response_text);
 	}
 	
@@ -74,6 +86,7 @@ var size = 500;
 
 function draw_circle(color, coords, r) {
 	ctx.lineWidth = 1;
+	ctx.fillStyle = color;
 	ctx.moveTo(coords[0]+r,coords[1]);
 	ctx.beginPath();
 	ctx.arc(coords[0],coords[1],r,0,2*Math.PI);
@@ -81,8 +94,8 @@ function draw_circle(color, coords, r) {
 	ctx.fillStyle = color;
 	ctx.fill();
 	ctx.stroke();
+	ctx.fillStyle = "black";
 }
-
 
 
 function display(data){
@@ -94,10 +107,8 @@ function display(data){
 	parsed_data = JSON.parse(data);
 
 	for (var i = 0; i < parsed_data.length; i++) {
-		console.log(parsed_data[i]);
 		if(parsed_data[i]["class"] == 0){
 			// movement
-			console.log("moving");
 			if(parsed_data[i]["type"] == "turn-right"){
 				direction += Math.PI / 8;
 			}
@@ -147,20 +158,22 @@ function display(data){
 			var avg_angle = (180-((parsed_data[i]["start_angle"] + parsed_data[i]["end_angle"]) / 2)) / 180 * Math.PI;
 			var x = current_x + Math.cos(avg_angle + direction - Math.PI/2) * parsed_data[i]["distance"];
 			var y = current_y + Math.sin(avg_angle + direction - Math.PI/2) * parsed_data[i]["distance"];
-			draw_circle("green", [x,y], parsed_data[i]["width"]);
+			draw_circle("rgba(0,255,0,0.3)", [x,y], parsed_data[i]["width"]);
 		}
 	}
 
 	// draw direction
-
+	////////////////////////////////
 	// find points A,B,C
-	var aa = [current_x + Math.cos(direction - Math.PI/2)*10, current_y + Math.sin(direction - Math.PI/2)*10];
-	var bb = [current_x + Math.cos(direction)*10, current_y + Math.sin(direction)*10];
-	var cc = [current_x + Math.cos(direction + Math.PI/2)*10, current_y + Math.sin(direction + Math.PI/2)*10];
+	var temp_x = current_x - Math.cos(direction) * 10;
+	var temp_y = current_y - Math.sin(direction) * 10;
+	var aa = [temp_x + Math.cos(direction - Math.PI/2)*10, temp_y + Math.sin(direction - Math.PI/2)*10];
+	var bb = [temp_x + Math.cos(direction)*10, temp_y + Math.sin(direction)*10];
+	var cc = [temp_x + Math.cos(direction + Math.PI/2)*10, temp_y + Math.sin(direction + Math.PI/2)*10];
 
 	// draw lines
 	ctx.strokeStyle = "red";
-
+	ctx.lineWidth = 3;
 	ctx.beginPath();
 	ctx.moveTo(aa[0],aa[1]);
 	ctx.lineTo(bb[0],bb[1]);
@@ -170,7 +183,28 @@ function display(data){
 	ctx.moveTo(bb[0],bb[1]);
 	ctx.lineTo(cc[0],cc[1]);
 	ctx.stroke();
+	ctx.lineWidth = 1;
 	ctx.strokeStyle = "black";
+	//////////////////////////////
+	
+	// draw scan cone
+	//////////////////////////////
+	console.log(is_scanning);
+	if(is_scanning) {
+		var cone_a = [current_x - Math.cos(direction - 3*Math.PI/8)*40, current_y - Math.sin(direction - 3*Math.PI/8)*40];
+		var cone_b = [current_x - Math.cos(direction + 3*Math.PI/8)*40, current_y - Math.sin(direction + 3*Math.PI/8)*40];
+		ctx.strokeStyle = "rgba(0,0,255,0.3)";
+		ctx.moveTo(current_x, current_y);
+		ctx.beginPath();
+		ctx.arc(current_x,current_y,40,direction - 3*Math.PI/8,direction + 3*Math.PI/8);
+		ctx.lineTo(current_x, current_y);
+		ctx.closePath();
+		ctx.fillStyle = "rgba(0,0,255,0.3)";
+		ctx.fill();
+		ctx.stroke();
+		ctx.strokeStyle = "black";
+	}
+	//////////////////////////////
 	
 }
 
