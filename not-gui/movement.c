@@ -9,6 +9,7 @@
 #include "lcd.h"
 #include "Timer.h"
 #include "uart.h"
+#include "string.h"
 
 
 /*
@@ -57,8 +58,8 @@ void turn(oi_t *sensor, int degrees)
 void auto_reroute(oi_t *sensor, int centimeters){
      //include lcd_init() for print testing
      lcd_init();
-     oi_setWheels((centimeters > 0) ? 300 : -298.5, (centimeters > 0) ? 300 : -298.5);
-     char msg[81] = "";
+     oi_setWheels((centimeters > 0) ? 100 : -100, (centimeters > 0) ? 100 : -100);
+     char msg[81] = "none";
      int sum = 0;
 
     //IMPORTANT: (TODO)
@@ -72,25 +73,24 @@ void auto_reroute(oi_t *sensor, int centimeters){
             oi_update(sensor);
             sum += sensor->distance;
 
+            x = (sum/10);
+
             if(sensor->bumpLeft == 1)
             {
-                move(sensor,-5,250);
+                move(sensor,x * -1,250);
               //  turn(sensor,-90);
-                x = (sum/10);
                 sum = abs(milimeters);
-                sprintf(msg, '2{"cm": %d}\n', x);
+                sprintf(msg, "{\"class\":1,\"type\": \"bump-left\", \"distance\": %d}\n", x);
                 send_string(msg);
-                send_string('1{"types":["bump"]}\n');
                 lcd_printf(msg);
             }
 
             else if(sensor->bumpRight == 1)
             {
-                move(sensor,-5,250);
+                move(sensor,x * -1,250);
               //  turn(sensor,90);
-                x = (sum/10);
                 sum = abs(milimeters);
-                sprintf(msg, "centimeters traveled before Front Right BUMP %d\n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"bump-right\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
             }
@@ -103,10 +103,9 @@ void auto_reroute(oi_t *sensor, int centimeters){
             //These values indicate CRATERs
             else if(sensor-> cliffFrontRightSignal < 800)
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, 90);
-                x = (sum/10);
-                sprintf(msg, "centimeters traveled before CRATER on Front Right %d\n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"cliff-right\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
@@ -114,10 +113,9 @@ void auto_reroute(oi_t *sensor, int centimeters){
 
             else if(sensor-> cliffRightSignal < 800)
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, 45);
-                x = (sum/10);
-                sprintf(msg, "centimeters traveled before CRATER on Right %d \n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"cliff-right\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
@@ -125,10 +123,9 @@ void auto_reroute(oi_t *sensor, int centimeters){
 
             else if(sensor-> cliffFrontLeftSignal < 800)
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, -90);
-                x = (sum/10);
-                sprintf(msg, "centimeters traveled before CRATER on Front Left %d \n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"cliff-left\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
@@ -136,10 +133,9 @@ void auto_reroute(oi_t *sensor, int centimeters){
 
             else if(sensor-> cliffLeftSignal < 800)
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, -45);
-                x = (sum/10);
-                sprintf(msg, "centimeters traveled before CRATER on Left %d\n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"cliff-left\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
@@ -149,11 +145,10 @@ void auto_reroute(oi_t *sensor, int centimeters){
 
             else if((sensor->cliffFrontRight) || ((sensor->cliffFrontRightSignal) > 2750))
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, 90);
-                x = (sum/10);
                 char msg[81] = "";
-                sprintf(msg, "centimeters traveled before WHITE LINE on Front Right %d\n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"white-line\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
@@ -162,22 +157,20 @@ void auto_reroute(oi_t *sensor, int centimeters){
 
             else if((sensor->cliffRight) || ((sensor->cliffRightSignal) > 2750))
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
               //  turn(sensor, 45);
-                x = (sum/10);
                 char msg[81] = "";
-                sprintf(msg, "centimeters traveled before WHITE LINE on Right %d \n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"white-line\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
             }
 
             else if((sensor->cliffFrontLeft) || ((sensor->cliffFrontLeftSignal) > 2750)){
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, -90);
-                x = (sum/10);
                 char msg[81] = "";
-                sprintf(msg, "centimeters traveled before WHITE LINE on Front Left %d\n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"white-line\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
@@ -185,16 +178,21 @@ void auto_reroute(oi_t *sensor, int centimeters){
 
             else if((sensor->cliffLeft) || ((sensor->cliffLeftSignal) >2750))
             {
-                move(sensor, -5, 250);
+                move(sensor, x * -1, 250);
                // turn(sensor, -45);
-                x = (sum/10);
                 char msg[81] = "";
-                sprintf(msg, "centimeters traveled before WHITE LINE on Left %d\n", x);
+                sprintf(msg, "{\"class\":1,\"type\": \"white-line\", \"distance\": %d}\n", x);
                 send_string(msg);
                 lcd_printf(msg);
                 sum = abs(milimeters);
             }
 
+
+        }
+
+        if(strcmp(msg, "none") == 0){
+            sprintf(msg, "{\"class\":0, \"type\": \"move_forward\", \"distance\": %d}\n", x);
+            send_string(msg);
         }
         oi_setWheels(0, 0); // stop
-}
+        }

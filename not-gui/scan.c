@@ -13,6 +13,9 @@
 #include <sonar.h>
 #include <uart.h>
 #include <stdbool.h>
+#include <math.h>
+
+#define PI 3.14159265
 
 int16_t scan_degrees = 0;
 int8_t obj_count = 0;
@@ -65,6 +68,7 @@ void scan_reset(){
  *
  */
 void scan_action(){
+    scan_reset();
     int degrees = 0;
       int store_degrees = 0; //stores degrees before an object is being detected :)
       int objects[15];
@@ -86,14 +90,15 @@ void scan_action(){
                           on_object = 1;
                       }
                   }
-                  else if(on_object == 1){
+                  else if(on_object == 1 && ping_distance < 60){ //added this to not send back things super far away
                       objects[num_value] = degrees - store_degrees;
                       b_location[num_value] = degrees;
                       lcd_printf("%d", ping_read());
 
                       // send distance back
-                      char my_str[30];
-                      sprintf(my_str, "distance: %d, start: %d, end: %d\n", ping_distance, degrees, store_degrees);
+                      char my_str[300];
+                      object_width = ping_distance * atan(((degrees - store_degrees)/ 360.0) * PI);
+                      sprintf(my_str, "{\"class\": 2,\"distance\": %d, \"width\": %f, \"start_angle\": %d, \"end_angle\": %d}\n", ping_distance, object_width, store_degrees, degrees);
                       send_string(my_str);
 
                       num_value++;
@@ -104,7 +109,7 @@ void scan_action(){
                       real = 0;
                   }
               servo_t(degrees);
-              timer_waitMillis(10);
+              timer_waitMillis(30);
               degrees += 1;
           }
           int i;
@@ -125,6 +130,7 @@ void scan_action(){
           }
           servo_t(b_location[min_index] - (objects[min_index]));
           lcd_printf("%d", min_index);
+
 
 }
 
