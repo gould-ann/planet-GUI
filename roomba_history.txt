@@ -1,0 +1,60 @@
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0,"type": "scan"}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":1,"type": "bump-right", "distance": 2}<br>
+{"class":0,"type": "turn-right"}<br>
+{"class":0,"type": "turn-right"}<br>
+{"class":1,"type": "bump-right", "distance": 10}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0,"type": "turn-right"}<br>
+{"class":0,"type": "turn-right"}<br>
+{"class":0,"type": "turn-right"}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":1,"type": "white-line", "distance": 2}<br>
+{"class":0, "type": "move_forward", "distance": 2}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0,"type": "turn-left"}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class":0, "type": "move_forward", "distance": 10}<br>
+{"class": 2,"distance": 37, "width": 5.764841, "start_angle": 69, "end_angle": 87}<br>
+{"class": 2,"distance": 37, "width": 1.935548, "start_angle": 99, "end_angle": 105}<br>
+{"class": 2,"distance": 38, "width": 0.994610, "start_angle": 120, "end_angle": 123}<br>
+{"class":0,"type": "scan"}<br>
+{"class": 2,"distance": 38, "width": 4.292611, "start_angle": 69, "end_angle": 82}<br>
+{"class": 2,"distance": 36, "width": 2.196386, "start_angle": 98, "end_angle": 105}<br>
+{"class": 2,"distance": 37, "width": 2.578903, "start_angle": 115, "end_angle": 123}<br>
+{"class":0,"type": "scan"}<br>
+{"class": 2,"distance": 38, "width": 5.920647, "start_angle": 68, "end_angle": 86}<br>
+{"class": 2,"distance": 36, "width": 1.883236, "start_angle": 98, "end_angle": 104}<br>
+{"class": 2,"distance": 36, "width": 0.314151, "start_angle": 115, "end_angle": 116}<br>
+{"class": 2,"distance": 37, "width": 1.613406, "start_angle": 119, "end_angle": 124}<br>
+{"class":0,"type": "scan"}<br>

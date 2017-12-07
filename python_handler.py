@@ -6,6 +6,11 @@ import sockets
 
 sockets.connect_socket("192.168.1.1", 42880)
 
+# # clear history
+history_file = open("roomba_history.txt", "w")
+history_file.write("")
+history_file.close()
+
 while 1:
 
 	# send input
@@ -21,7 +26,7 @@ while 1:
 		time.sleep(1)
 	else:
 		# get output
-		i = open("roomba_output.txt", "a")
+		i = open("roomba_history.txt", "a")
 		char = sockets.get_data()
 		print "char is: " + char
 		if char == "\n":

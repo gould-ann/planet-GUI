@@ -3,16 +3,16 @@
 
 
 
-
-// the function called by the button press
-function get_output() {
-	get_request('php_get_handler.php', draw_output, do_nothing);
+// called to get outputs and draw them all
+function draw_all() {
+	get_request('get_commands.php', draw_output, do_nothing);
 	return false;
 }
 
+
 // the function called by the button press
 function send_input(char) {
-	get_request('php_send_handler.php?char='+char, draw_command_sent, draw_error);
+	get_request('php_send_handler.php?char='+char, draw_command_sent, do_nothing);
 	return false;
 }
 
@@ -34,10 +34,11 @@ function do_nothing(){
 
 // what do do if its succsessful
 function draw_output(response_text) {
-	// response_text = response_text.substring(30);
-	document.getElementById("raw_output").innerHTML = "<br>" + response_text;
-	get_info(response_text);
-
+	if(response_text.length > 10){
+		// response_text = response_text.substring(30);
+		document.getElementById("raw_output").innerHTML = "<br>" + response_text;
+		display(response_text);
+	}
 	
 
 }
@@ -59,9 +60,10 @@ function get_request(url, success, error) {
 	return req;
 }
 
-setInterval(get_output, 1000);
-
-
+// setInterval(get_outputs, 1000);
+setInterval(draw_all, 1000);
+// draw_all();
+// setTimeout(draw_all, 1000);
 
 
 // object displaying
@@ -71,117 +73,107 @@ ctx = canvas.getContext("2d");
 var size = 500;
 
 function draw_circle(color, coords, r) {
-	ctx.strokeStyle = color;
 	ctx.lineWidth = 1;
-	ctx.moveTo(coords[0]+r+(size/2),coords[1]+(size/2));
+	ctx.moveTo(coords[0]+r,coords[1]);
 	ctx.beginPath();
-	ctx.arc(coords[0]+(size/2),coords[1]+(size/2),r,0,2*Math.PI);
+	ctx.arc(coords[0],coords[1],r,0,2*Math.PI);
 	ctx.closePath();
 	ctx.fillStyle = color;
 	ctx.fill();
 	ctx.stroke();
 }
 
-function draw_pole(center, radius){
-	draw_circle("red", center, radius);
-}
-
-function draw_bump(center){
-	draw_circle("green", center, 5); //TODO get actual radius of small objects here
-}
-
-function draw_drop(center) {
-	draw_circle("purple", center, 5);
-}
-
-function draw_white_line(center) {
-	draw_circle("black", center, 5);
-}
-
-function draw_history(center) {
-	draw_circle("pink", center, 1);
-}
-
-var objects = [];
-var current_x = 0;
-var current_y = 0;
-
-var direction = Math.PI / 2;
 
 
-function get_info(data){
-	console.log("getting data for: " + data);
-	if(data.substring(0,1) == "0"){
-		// manual sweep data
-		parsed_data = JSON.parse(data.substring(1));
-		for (var i = 0; i < parsed_data.length; i++) {
-			objects.push({"x": current_x + parsed_data[i]["x"], "y": current_y + parsed_data[i]["y"], radius: parsed_data[i]["radius"], "type": "pole"}); //TODO account for length of roomba
-		}
-	}
-	if(data.substring(0,1) == "1"){
-		// dynamic sensor
-		parsed_data = JSON.parse(data.substring(1));
-
-		for (var i = 0; i < parsed_data["types"].length; i++) {
-			objects.push({"x": current_x, "y": current_y, "type": parsed_data["types"][i]}); //TODO account for length of roomba
-		}
-	}
-	if(data.substring(0,1) == "2"){
-		// move up
-		parsed_data = JSON.parse(data.substring(1));
-
-		move_position(parsed_data["cm"]);
-	}
-
-	if(data.substring(0,1) == "3"){
-		// turn
-		parsed_data = JSON.parse(data.substring(1));
-
-		change_direction(parsed_data["degrees"]);
-	}
-}
-
-
-function display(){
+function display(data){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	for (var i = 0; i < objects.length; i++) {
-		if(objects[i]["type"] == "pole"){
-			draw_pole([objects[i]["x"], objects[i]["y"]], objects[i]["radius"]);
-		}
-		if(objects[i]["type"] == "bump"){
-			draw_bump([objects[i]["x"], objects[i]["y"]]);
-		}
-		if(objects[i]["type"] == "drop"){
-			draw_drop([objects[i]["x"], objects[i]["y"]]);
-		}
-		if(objects[i]["type"] == "white_line"){
-			draw_white_line([objects[i]["x"], objects[i]["y"]]);
-		}
-		if(objects[i]["type"] == "history"){
-			draw_history([objects[i]["x"], objects[i]["y"]]);
+	var current_x = 500;
+	var current_y = 500;
+	var direction = 0;
+
+	parsed_data = JSON.parse(data);
+
+	for (var i = 0; i < parsed_data.length; i++) {
+		console.log(parsed_data[i]);
+		if(parsed_data[i]["class"] == 0){
+			// movement
+			console.log("moving");
+			if(parsed_data[i]["type"] == "turn-right"){
+				direction += Math.PI / 8;
+			}
+			if(parsed_data[i]["type"] == "turn-left"){
+				direction -= Math.PI / 8;
+			}
+			if(parsed_data[i]["type"] == "move_forward"){
+				var new_x = current_x + Math.cos(direction) * parsed_data[i]["distance"];
+				var new_y = current_y + Math.sin(direction) * parsed_data[i]["distance"];
+				ctx.beginPath();
+				ctx.moveTo(current_x,current_y);
+				ctx.lineTo(new_x,new_y);
+				ctx.stroke();
+		        current_x = new_x;
+		        current_y = new_y;
+			}
+			if(parsed_data[i]["type"] == "move-down"){
+				var new_x = current_x - Math.cos(direction) * parsed_data[i]["distance"];
+				var new_y = current_y - Math.sin(direction) * parsed_data[i]["distance"];
+				ctx.beginPath();
+				ctx.moveTo(current_x,current_y);
+				ctx.lineTo(new_x,new_y);
+				ctx.stroke();
+		        current_x = new_x;
+		        current_y = new_y;
+			}
+		} else if(parsed_data[i]["class"] == 1) {
+			var x = Math.cos(direction) * parsed_data[i]["distance"];
+			var y = Math.sin(direction) * parsed_data[i]["distance"];
+
+			if(parsed_data[i]["type"] == "white-line"){
+				draw_circle("black", [current_x + x, current_y + y], 5);
+			}
+			if(parsed_data[i]["type"] == "cliff-right"){
+				draw_circle("red", [current_x + x, current_y + y], 5);
+			}
+			if(parsed_data[i]["type"] == "cliff-left"){
+				draw_circle("red", [current_x + x, current_y + y], 5);
+			}
+			if(parsed_data[i]["type"] == "bump-right"){
+				draw_circle("blue", [current_x + x, current_y + y], 5);
+			}
+			if(parsed_data[i]["type"] == "bump-left"){
+				draw_circle("blue", [current_x + x, current_y + y], 5);
+			}
+		} else if(parsed_data[i]["class"] == 2 && parsed_data[i]["width"] < 10) {
+			var avg_angle = (180-((parsed_data[i]["start_angle"] + parsed_data[i]["end_angle"]) / 2)) / 180 * Math.PI;
+			var x = current_x + Math.cos(avg_angle + direction - Math.PI/2) * parsed_data[i]["distance"];
+			var y = current_y + Math.sin(avg_angle + direction - Math.PI/2) * parsed_data[i]["distance"];
+			draw_circle("green", [x,y], parsed_data[i]["width"]);
 		}
 	}
-}
 
+	// draw direction
 
-function change_direction(radians) {
+	// find points A,B,C
+	var aa = [current_x + Math.cos(direction - Math.PI/2)*10, current_y + Math.sin(direction - Math.PI/2)*10];
+	var bb = [current_x + Math.cos(direction)*10, current_y + Math.sin(direction)*10];
+	var cc = [current_x + Math.cos(direction + Math.PI/2)*10, current_y + Math.sin(direction + Math.PI/2)*10];
 
-	direction += radians * Math.PI/180;
-}
+	// draw lines
+	ctx.strokeStyle = "red";
 
-function move_position(cm){
-	for (var i = 0; i < cm; i += cm / 20) {
-		current_x += Math.acos(direction % (Math.PI / 2)) * cm / 20;
-		current_y += Math.asin(direction % (Math.PI / 2) - Math.PI/4) * cm / 20;
-		objects.push({"x": current_x, "y": current_y, "type": "history"});
-	}
+	ctx.beginPath();
+	ctx.moveTo(aa[0],aa[1]);
+	ctx.lineTo(bb[0],bb[1]);
+	ctx.stroke();
 
-
+	ctx.beginPath();
+	ctx.moveTo(bb[0],bb[1]);
+	ctx.lineTo(cc[0],cc[1]);
+	ctx.stroke();
+	ctx.strokeStyle = "black";
 	
-	// console.log(Math.asin(direction % (Math.PI / 2) - Math.PI/4));
 }
 
-setInterval(display, 1000);
 
 // get_info('0[{"x": 50, "y": 90, "radius": 10}, {"x": 10, "y": 90, "radius": 15}]');
 
